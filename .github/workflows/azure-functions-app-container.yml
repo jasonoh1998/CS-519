@@ -1,0 +1,58 @@
+# This workflow will build a container and deploy it to an Azure Functions App on Linux when a commit is pushed to your default branch.
+#
+# This workflow assumes you have already created the target Azure Functions app.
+# For instructions see https://learn.microsoft.com/en-us/azure/azure-functions/functions-create-function-linux-custom-image?tabs=in-process%2Cbash%2Cazure-cli&pivots=programming-language-csharp
+#
+# To configure this workflow:
+# 1. Set up the following secrets in your repository:
+#   - AZURE_RBAC_CREDENTIALS
+#   - REGISTRY_USERNAME
+#   - REGISTRY_PASSWORD
+# 2. Change env variables for your configuration.
+#
+# For more information on:
+#   - GitHub Actions for Azure: https://github.com/Azure/Actions
+#   - Azure Functions Container Action: https://github.com/Azure/functions-container-action
+#   - Azure Service Principal for RBAC: https://github.com/Azure/functions-action#using-azure-service-principal-for-rbac-as-deployment-credential
+#
+# For more samples to get started with GitHub Action workflows to deploy to Azure: https://github.com/Azure/actions-workflow-samples/tree/master/FunctionApp
+
+name: Deploy container to Azure Functions App
+
+on:
+  push:
+    branches: ["main", "feature"]
+    paths:
+      - 'Node/API2/**'
+      - '.github/workflows/azure-functions-app-container.yml'
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+    - name: 'Checkout GitHub Action'
+      uses: actions/checkout@v3
+
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_RBAC_CREDENTIALS }}
+        
+    - name: Build and deploy Container App
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        appSourcePath: ${{ github.workspace }}/Node/API2
+        acrName: jasonoh
+        acrUsername: ${{ secrets.REGISTRY_USERNAME }}
+        acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
+        containerAppName: jasonoh-container-app
+        resourceGroup: 519fall2023-project
+        environmentVariables: |
+          secret3=secretref:secret3
+          AzureWebJobsStorage=${{ secrets.AZURE_WEBJOBS_STORAGE }}
+        
+    - name: Azure logout
+      run: |
+        az logout
