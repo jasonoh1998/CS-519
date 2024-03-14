@@ -37,7 +37,7 @@ This is CS 519 Assignments repository with overview of the setup and structure o
    ```
    
 ## Solution diagram
-![image](https://github.com/spark-classes/assignment-1-jasonoh1998/assets/92873161/b0d35690-197d-4f14-a764-70c7cffb6a18)
+![image](https://github.com/jasonoh1998/CS-519/blob/main/arc.png)
 
 ### API1
 
